@@ -30,7 +30,7 @@ class _HomeState extends State<Home> {
         person_id: 2,
         person_name: "Steve Perry",
         person_number: "212- 222- 3344",
-        person_email: "steveperry@hotmail.com",
+        person_email: "stveperry@hotmail.com",
         person_address: "New York, USA");
     var p3 = Contacts(
         person_id: 3,
