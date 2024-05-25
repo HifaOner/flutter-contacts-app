@@ -22,22 +22,22 @@ class _HomeState extends State<Home> {
 
     var p1 = Contacts(
         person_id: 1,
-        person_name: "Orhan Yılmaz",
-        person_number: "5521055753",
-        person_email: "orhanyilmaz@gmail.com",
+        person_name: "Theo James",
+        person_number: "212- 111- 2233",
+        person_email: "theojames@gmail.com",
         person_address: "Holland, Amsterdam");
     var p2 = Contacts(
         person_id: 2,
-        person_name: "Ayşe Soylu",
-        person_number: "5413370047",
-        person_email: "aysesoylu@hotmail.com",
+        person_name: "Steve Perry",
+        person_number: "212- 222- 3344",
+        person_email: "steveperry@hotmail.com",
         person_address: "New York, USA");
     var p3 = Contacts(
         person_id: 3,
-        person_name: "Selim Akıncı",
-        person_number: "5521021619",
-        person_email: "slmakıncı@gmail.com",
-        person_address: "Turkey, Adana");
+        person_name: "John Barnes",
+        person_number: "212- 333- 4455",
+        person_email: "johnbarnes@gmail.com",
+        person_address: "Italy, Rome");
     contactsList.add(p1);
     contactsList.add(p2);
     contactsList.add(p3);
