@@ -1,7 +1,9 @@
 import 'package:contacts_app/data/entity/contacts.dart';
+import 'package:contacts_app/ui/cubit/home_cubit.dart';
 import 'package:contacts_app/ui/views/add_contact.dart';
 import 'package:contacts_app/ui/views/details.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -11,89 +13,83 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  bool isSearch = false;
+  // SEARCH
+  bool isSearch = false; // Arama kısmının görünürlüğünü kontrol etme durumu
 
-  Future<void> search(String searchWord) async {
-    print("Search : $searchWord");
-  }
-
-  Future<List<Contacts>> loadContacts() async {
-    var contactsList = <Contacts>[];
-
-    var p1 = Contacts(
-        person_id: 1,
-        person_name: "Theo James",
-        person_number: "212- 111- 2233",
-        person_email: "theojames@gmail.com",
-        person_address: "Holland, Amsterdam");
-    var p2 = Contacts(
-        person_id: 2,
-        person_name: "Steve Perry",
-        person_number: "212- 222- 3344",
-        person_email: "stveperry@hotmail.com",
-        person_address: "New York, USA");
-    var p3 = Contacts(
-        person_id: 3,
-        person_name: "John Barnes",
-        person_number: "212- 333- 4455",
-        person_email: "johnbarnes@gmail.com",
-        person_address: "Italy, Rome");
-    contactsList.add(p1);
-    contactsList.add(p2);
-    contactsList.add(p3);
-    return contactsList;
-  }
-
-  Future<void> delete(int person_id) async {
-    print("Deleted Person : $person_id");
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    context.read<HomeCubit>().loadContacts();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: isSearch
+        title: isSearch // Eğer isSearch true ise aşağıdaki görünüm olacak
             ? TextField(
                 decoration: const InputDecoration(hintText: "Search"),
                 onChanged: (searchResult) {
-                  search(searchResult);
+                  context.read<HomeCubit>().search(searchResult);
                 },
               )
-            : const Text("Contacts"),
+            : const Text(
+                "Contacts"), // Eğer isSearch false ise Contacts yazacaka
+
         actions: [
           isSearch
               ? IconButton(
+                  // SEARCH GÖRÜNÜMÜNDE
                   onPressed: () {
                     setState(() {
                       isSearch = false;
                     });
+                    context.read<HomeCubit>().loadContacts();
                   },
-                  icon: const Icon(Icons.clear))
+                  icon:
+                      const Icon(Icons.clear)) // Çarpıya basıldığında kapancak
+
               : IconButton(
+                  // CONTACTS GÖRÜNÜMÜNDE
                   onPressed: () {
                     setState(() {
                       isSearch = true;
                     });
                   },
-                  icon: const Icon(Icons.search))
+                  icon: const Icon(
+                      Icons.search)) // Butona basıldığında arama kısmı açılcak
         ],
       ),
-      body: FutureBuilder<List<Contacts>>(
-        future: loadContacts(),
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            var contactsList = snapshot.data;
+
+      // Bu sayfa, loadContacts fonksiyonundan gelecek olan kişi listesini (Contacts listesi) gösterir.
+      // FutureBuilder widget'ı, bir Future nesnesinin dönüşünü bekler ve bu nesne dönene kadar bir
+      // yüklenme ekranı veya bir hata mesajı gösterir. FutureBuilder ile yapılan iş, asenkron işlemler
+      // sona erdikten sonra sayfayı güncellemektir. Bu sayede, loadContacts fonksiyonunun çalışması
+      // tamamlanana kadar sayfa kullanıcıya bir yükleme durumu gösterir.
+
+      body: BlocBuilder<HomeCubit, List<Contacts>>(
+        //future: loadContacts(), // future parametresi, beklenen gelecekteki değeri temsil eden Future nesnesini belirtir
+        builder: (context, contactsList) {
+          // builder parametresi, Future nesnesi belirli bir duruma ulaştığında ne yapılacağını belirten bir fonksiyon alır
+          if (contactsList.isNotEmpty) {
+            // snapshot.hasData, Future nesnesi tamamlandığında true olur
+            //var contactsList = snapshot.data; // snapshot.data, gelecekteki değeri temsil eden veriyi içerir
             return ListView.builder(
-              itemCount: contactsList!.length,
+              // ListView.builder, bir liste oluşturmak için kullanılır
+              itemCount: contactsList!.length, // Liste elemanlarının sayısı
               itemBuilder: (context, index) {
-                var person = contactsList[index];
+                var person = contactsList[index]; // Kişi bilgisi
                 return GestureDetector(
                   onTap: () {
+                    // Kişiye dokunulduğunda başka bir sayfaya geçiş yapılır
                     Navigator.push(
                             context,
                             MaterialPageRoute(
                                 builder: (context) => Details(person)))
                         .then((value) {
+                      context.read<HomeCubit>().loadContacts();
+                      // Detay sayfasından geri dönüldüğünde bir işlem yapılır
                       print("Back to HomePage");
                     });
                   },
@@ -125,6 +121,7 @@ class _HomeState extends State<Home> {
                           const Spacer(),
                           IconButton(
                             onPressed: () {
+                              // Çarpıya basıldığında silme snackbarı
                               ScaffoldMessenger.of(context)
                                   .showSnackBar(SnackBar(
                                 content:
@@ -132,7 +129,9 @@ class _HomeState extends State<Home> {
                                 action: SnackBarAction(
                                   label: "Yes",
                                   onPressed: () {
-                                    delete(person.person_id);
+                                    context
+                                        .read<HomeCubit>()
+                                        .delete(person.person_id);
                                   },
                                 ),
                               ));
@@ -150,15 +149,20 @@ class _HomeState extends State<Home> {
               },
             );
           } else {
-            return const Center();
+            return const Center(
+                child:
+                    CircularProgressIndicator()); // Future nesnesi henüz tamamlanmadıysa yükleme durumunu göster
           }
         },
       ),
+
       floatingActionButton: FloatingActionButton(
+        // ADD CONTACT SAYFASI GEÇİŞ BUTONU (+)
         onPressed: () {
           Navigator.push(context,
                   MaterialPageRoute(builder: (context) => const AddContact()))
               .then((value) {
+            context.read<HomeCubit>().loadContacts();
             print("Anasayfaya dönüldü");
           });
         },

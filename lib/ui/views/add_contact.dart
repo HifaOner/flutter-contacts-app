@@ -1,4 +1,6 @@
+import 'package:contacts_app/ui/cubit/add_contact_cubit.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class AddContact extends StatefulWidget {
   const AddContact({super.key});
@@ -8,17 +10,12 @@ class AddContact extends StatefulWidget {
 }
 
 class _AddContactState extends State<AddContact> {
+
+
   var tfContactName = TextEditingController();
   var tfContactNumber = TextEditingController();
   var tfContactEmail = TextEditingController();
   var tfContactAddress = TextEditingController();
-
-
-  Future<void> save(String person_name, String person_number, String person_email, String person_address) async {
-    print("Contact Saved : $person_name - $person_number - $person_email - $person_address");
-  }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -108,11 +105,16 @@ class _AddContactState extends State<AddContact> {
                   SizedBox(
                     width: 200,
                     child: ElevatedButton(
+                      // Save bastığımızda tect field bilgilerini kaydeder, konsola yazdırır
                       style: const ButtonStyle(
                           backgroundColor:
                               MaterialStatePropertyAll<Color>(Colors.blue)),
                       onPressed: () {
-                        save(tfContactName.text, tfContactNumber.text, tfContactEmail.text, tfContactAddress.text);
+                        context.read<AddContactCubit>().save(
+                            tfContactName.text,
+                            tfContactNumber.text,
+                            tfContactEmail.text,
+                            tfContactAddress.text);
                         Navigator.pop(context);
                       },
                       child: const Text('Save'),
